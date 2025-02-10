@@ -1,6 +1,6 @@
 # Jose Flores
 # 1/21/2025
-# 
+# currnet date 2/10/15
 
 import math
 import numpy as np # array operations
