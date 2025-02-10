@@ -1,13 +1,12 @@
 # Jose Flores
 # 1/21/2025
 # currnet date 2/10/15
-# Stoffel checked this
 
 import math
 import numpy as np # array operations
-import matplotlib.pyplot as plt # plottig 
+import matplotlib.pyplot as plt # plottig
 import matplotlib.animation as animation # animation for plot
-from matplotlib.animation import FuncAnimation 
+from matplotlib.animation import FuncAnimation
 
 print('2D equation solver')
 
@@ -15,14 +14,14 @@ plate_length = 150
 max_iter_time = 100
 
 r = 10
-delta_x = 1 # chnage with respect to x 
+delta_x = 1 # chnage with respect to x
 rho1 = 2710 # g/cm^3
 rho2 = 1.293
-cp1 = .89 *1000 # J/g celcius * 1000 for kg  
+cp1 = .89 *1000 # J/g celcius * 1000 for kg
 cp2 = 1.012 * 1000
 
 k_min = .062 # W/(mK) air
-k_max = 237 # W/(mK) aluminum 
+k_max = 237 # W/(mK) aluminum
 gamma=.25
 delta_t= gamma*(min(rho1,rho2)*min(cp1,cp2)/(k_max*delta_x**2))
 
@@ -38,7 +37,7 @@ cappa = np.empty((plate_length,plate_length))
 cp_ar = np.empty((plate_length,plate_length))
 rho_ar = np.empty((plate_length,plate_length))
 
-           
+
 #cond[j][i] = k_min + j/plate_length*(k_max-k_min)
 '''
 plt.clf()
@@ -46,7 +45,7 @@ plt.clf()
 # this is to plot u_k(u at time-setp k)
 plt.pcolormesh(rho_ar, cmap=plt.cm.jet)
 plt.colorbar()
-plt.show() 
+plt.show()
 print ('something')
 wait= input('Press')
 print ('something' )
@@ -87,19 +86,19 @@ u[:,:,(plate_length-1):] = u_right
 
 
 
-def calculate(u):    
+def calculate(u):
     for k in range(0,max_iter_time-1,1):
         ##print (u[k,:,25])
         #input(' test prompt'
-        for i in range(1,plate_length-1,delta_x):    
+        for i in range(1,plate_length-1,delta_x):
             for j in range(1,plate_length-1, delta_x):
                 u[k+1,i,j] = (cond[i][j] * ((1/delta_x**2)*delta_t/(rho_ar[i][j]*cp_ar[i][j])))*  (u[k][i+1][j] + u[k][i-1][j] + u[k][i][j+1] + u[k][i][j-1] - 4*u[k][i][j]) + u[k][i][j]
-                
-                
-               
-               
-             
-                
+
+
+
+
+
+
     return u
 
 def plotheatmap(u_k, k):
@@ -126,5 +125,3 @@ anim = animation.FuncAnimation(plt.figure(), animate, interval=1, frames=max_ite
 anim.save("heat_equation_solutionV6.gif")
 
 print("Done!")
-
-
