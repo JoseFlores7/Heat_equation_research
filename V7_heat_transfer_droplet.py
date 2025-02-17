@@ -11,25 +11,11 @@ from matplotlib.animation import FuncAnimation
 
 print('2D equation solver')
 
-length_x = int(input('Enter plate length x: '  ))
-length_y = int(input('Enter plate length y: '  ))
-nx = int (input('Enter iter time for x ( default enter 100):' ))
-ny = int (input('Enter iter time for y ( default enter 100):' ))
-x = np.linspace(0,length_x,nx)
-y = np.linspace(0,length_y,ny)
+plate_length = 150
+max_iter_time = 100
 
-
-
-r = int(input('Enter a radius for droplet: ' ))
-
-delta_x = length_x/(nx-1)
-delta_y = length_y/(ny-1)
-
-if (delta_x != delta_y):
-    print ('hi')
-else:
-    print ('hello')
-
+r = 10
+delta_x = 1 # chnage with respect to x 
 rho1 = 2710 # g/cm^3
 rho2 = 1.293
 cp1 = .89 *1000 # J/g celcius * 1000 for kg  
@@ -40,21 +26,33 @@ k_max = 237 # W/(mK) aluminum
 gamma=.25
 delta_t= gamma*(min(rho1,rho2)*min(cp1,cp2)/(k_max*delta_x**2))
 
+#delta_t= gamma*(rho*cp/k_max)*delta_x**2
 
 
+i_0 = plate_length/2
+j_0 = plate_length/2
 
-i_0 = length_x/2
-j_0 = length_y/2
 
+cond= np.empty((plate_length,plate_length))
+cappa = np.empty((plate_length,plate_length))
+cp_ar = np.empty((plate_length,plate_length))
+rho_ar = np.empty((plate_length,plate_length))
 
-cond= np.empty((length_x,length_y))
-cappa = np.empty((length_x,length_y))
-cp_ar = np.empty((length_x,length_y))
-rho_ar = np.empty((length_x,length_y))
            
+#cond[j][i] = k_min + j/plate_length*(k_max-k_min)
+'''
+plt.clf()
 
+# this is to plot u_k(u at time-setp k)
+plt.pcolormesh(rho_ar, cmap=plt.cm.jet)
+plt.colorbar()
+plt.show() 
+print ('something')
+wait= input('Press')
+print ('something' )
+'''
 #initalize solution: The grid of u(k,i,j)
-u = np.empty((nx,length_x, length_y))
+u = np.empty((max_iter_time, plate_length, plate_length))
 
 # inital conditions everywher inside the grid
 u_initial = 0.0
@@ -70,8 +68,8 @@ u_right = 0.0
 # set the inital conditions
 u.fill(u_initial)
 
-for i in range(0,length_x,delta_x):
-    for j in range(0,length_y, delta_y):
+for i in range(0,plate_length,delta_x):
+    for j in range(0,plate_length, delta_x):
         if (math.sqrt((i-i_0)**2+(j-j_0)**2)<r):
             cond[i][j] = k_max
             cp_ar[i][j] = cp1
@@ -91,8 +89,10 @@ u[:,:,(plate_length-1):] = u_right
 
 def calculate(u):    
     for k in range(0,max_iter_time-1,1):
-        for i in range(1,length_x-1,delta_x):    
-            for j in range(1,length_y-1, delta_y):
+        ##print (u[k,:,25])
+        #input(' test prompt'
+        for i in range(1,plate_length-1,delta_x):    
+            for j in range(1,plate_length-1, delta_x):
                 u[k+1,i,j] = (cond[i][j] * ((1/delta_x**2)*delta_t/(rho_ar[i][j]*cp_ar[i][j])))*  (u[k][i+1][j] + u[k][i-1][j] + u[k][i][j+1] + u[k][i][j-1] - 4*u[k][i][j]) + u[k][i][j]
                 
                 
@@ -121,7 +121,7 @@ u = calculate(u)
 def animate(k):
     plotheatmap(u[k],k)
 
-anim = animation.FuncAnimation(plt.figure(), animate, interval=1, frames=nx, repeat = False)
+anim = animation.FuncAnimation(plt.figure(), animate, interval=1, frames=max_iter_time, repeat = False)
 
 anim.save("heat_equation_solutionV6.gif")
 
