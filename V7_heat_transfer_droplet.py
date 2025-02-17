@@ -12,10 +12,13 @@ from matplotlib.animation import FuncAnimation
 print('2D equation solver')
 
 plate_length = 150
+n = 151
+x = np.linspace(0,plate_length,n)
+y = np.linspace(0,plate_length,n)
 max_iter_time = 100
 
 r = 10
-delta_x = 1 # chnage with respect to x 
+delta_x = plate_length/(n-1) # chnage with respect to x 
 rho1 = 2710 # g/cm^3
 rho2 = 1.293
 cp1 = .89 *1000 # J/g celcius * 1000 for kg  
@@ -29,14 +32,14 @@ delta_t= gamma*(min(rho1,rho2)*min(cp1,cp2)/(k_max*delta_x**2))
 #delta_t= gamma*(rho*cp/k_max)*delta_x**2
 
 
-i_0 = plate_length/2
-j_0 = plate_length/2
+i_0 = int(n/2)
+j_0 = int(n/2)
 
 
-cond= np.empty((plate_length,plate_length))
-cappa = np.empty((plate_length,plate_length))
-cp_ar = np.empty((plate_length,plate_length))
-rho_ar = np.empty((plate_length,plate_length))
+cond= np.empty((n,n))
+cappa = np.empty((n,n))
+cp_ar = np.empty((n,n))
+rho_ar = np.empty((n,n))
 
            
 #cond[j][i] = k_min + j/plate_length*(k_max-k_min)
@@ -52,7 +55,7 @@ wait= input('Press')
 print ('something' )
 '''
 #initalize solution: The grid of u(k,i,j)
-u = np.empty((max_iter_time, plate_length, plate_length))
+u = np.empty((max_iter_time, n, n))
 
 # inital conditions everywher inside the grid
 u_initial = 0.0
@@ -68,9 +71,9 @@ u_right = 0.0
 # set the inital conditions
 u.fill(u_initial)
 
-for i in range(0,plate_length,delta_x):
-    for j in range(0,plate_length, delta_x):
-        if (math.sqrt((i-i_0)**2+(j-j_0)**2)<r):
+for i in range(0,n,1):
+    for j in range(0,n, 1):
+        if (math.sqrt((x[i]-x[i_0])**2+(y[j]-y[j_0])**2)<r):
             cond[i][j] = k_max
             cp_ar[i][j] = cp1
             rho_ar[i][j] = rho1
@@ -80,10 +83,10 @@ for i in range(0,plate_length,delta_x):
             cp_ar[i][j] = cp2
             rho_ar[i][j] =rho2
 # set boundary conditions
-u[:, (plate_length-1):, :] = u_top
+u[:, (n-1):, :] = u_top
 u[:,:, :1] = u_left
 u[:,:1, 1:] = u_bottom
-u[:,:,(plate_length-1):] = u_right
+u[:,:,(n-1):] = u_right
 
 
 
@@ -91,8 +94,8 @@ def calculate(u):
     for k in range(0,max_iter_time-1,1):
         ##print (u[k,:,25])
         #input(' test prompt'
-        for i in range(1,plate_length-1,delta_x):    
-            for j in range(1,plate_length-1, delta_x):
+        for i in range(1,n-1,1):    
+            for j in range(1,n-1, 1):
                 u[k+1,i,j] = (cond[i][j] * ((1/delta_x**2)*delta_t/(rho_ar[i][j]*cp_ar[i][j])))*  (u[k][i+1][j] + u[k][i-1][j] + u[k][i][j+1] + u[k][i][j-1] - 4*u[k][i][j]) + u[k][i][j]
                 
                 
