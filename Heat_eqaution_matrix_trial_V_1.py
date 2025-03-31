@@ -2,28 +2,31 @@
 # flores 
 
 import numpy as np 
+import matplotlib.pyplot as plt # plottig 
+import matplotlib.animation as animation # animation for plot
+from matplotlib.animation import FuncAnimation 
 import scipy 
 from scipy.linalg import  solve
 
-l = 10
+grid_len = 10
 gamma = -2
 mat = (1-2*gamma)
+temp =100
+n_steps= 10
 
-# format is A = np.[]array 
-# B =np.[]array 
-# X= solve(A,B)
-# or x = np.linalg.solve(A,b)
-u = np.zeros((l,1))
-u.fill(10)
+x_low = 0 
+x_high = 1
+t_array = np.zeros((grid_len,1))
 
-print(u)
-
-
-
+t_array[0][0]=temp
+t_array[grid_len-1][0]=temp
+t_current = t_array 
+print(t_array)
+lin = np.linspace(x_low, x_high, grid_len) 
 
 
 # Define parameters
-rows, cols = l, l  # Number of rows and columns
+rows, cols = grid_len, grid_len  # Number of rows and columns
 x, y = gamma, mat        # Define the repeating values
 
 # Initialize a zero matrix
@@ -32,44 +35,44 @@ matrix = np.zeros((rows, cols), dtype=int)
 # Define the base pattern
 pattern = np.array([x, y, x])  # x, y, x pattern
 
+for i in range (0,grid_len-1):
+    matrix [i,i+1] = gamma
+for i in range (1,grid_len):
+     matrix[i,i-1] = gamma
 
-# Populate the matrix with the shifting pattern
-for i in range(1,rows): # runs when 1 is removed 
-    start_index = i % cols  # Calculate shift position per row
-    end_index = start_index + len(pattern)
+for i in range (0,grid_len):
+     matrix[i,i] = 1-2*gamma
 
-    if end_index <= cols:
-        # Insert pattern normally if it fits within the row
-        matrix[i, start_index:end_index] = pattern
-    else:
-        # Handle wrapping when the pattern exceeds row length
-        wrap_point = cols - start_index
-        matrix[i, start_index:] = pattern[:wrap_point]  # Fill till row end
-        matrix[i, :len(pattern) - wrap_point] = pattern[wrap_point:]  # Wrap to start
 def set_bound(matric):
     rows =len(matrix)
     cols =len(matrix[0])
-    for j in range (l):
+    for j in range (grid_len):
         matrix[0][j]=0
         matrix[rows-1][j] = 0
-    
+   
     # Set first and last columns to 0 (including corners again, but that's fine)
     for i in range(rows):
         matrix[i][0] = 0
-        matrix[i][cols-1] = 0
+        matrix[i][cols-grid_len] = 0
     matrix[0][0]=gamma
-    matrix[l-1][l-1]=gamma
+    matrix[grid_len-1][grid_len-1]=gamma
     
     return matrix
 
-
-
-
-matrix =set_bound(matrix)
+#matrix =set_bound(matrix)
 
 print (matrix)
 
-x = solve(matrix,u)
-print(x)
-print('hi')
+#x = solve(matrix,t_current)
+for i in range (n_steps):
+    t_forward = solve (matrix,t_current)
+    t_current[1:grid_len-1,0] = t_forward[1:grid_len-1,0]
+    #print('x=x', t_forward[1:grid_len-1,0])  
+    #print (t_current)
+
+
+
+
+plt.plot(lin,t_forward)
+plt.show()
 
